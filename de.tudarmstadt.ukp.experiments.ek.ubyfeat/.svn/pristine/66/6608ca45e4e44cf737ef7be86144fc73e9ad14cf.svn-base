@@ -1,0 +1,101 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.morphology.RelatedForm;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class MorphologicalRelationExtraction
+    extends UbyRelationExtraction
+{
+    public MorphologicalRelationExtraction(DBConfig db)
+        throws UbyInvalidArgumentException
+    {
+        super(db);
+
+    }
+
+    private List<Triple> generateMorphologicalRelations(LexicalEntry lexicalEntry)
+    {
+        List<Triple> mrList = new ArrayList<Triple>();
+        for (RelatedForm relatedForm : lexicalEntry.getRelatedForms()) {
+            for (Sense sense : lexicalEntry.getSenses()) {
+                Triple temp = new Triple(sense.getId(), relatedForm.getTargetSense().getId(),
+                        "morphological:" + relatedForm.getRelType().name());
+                temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+                temp.setRightHandSideType(EntityTypes.SENSE.getLabel());
+                System.out.println(temp);
+                mrList.add(temp);
+            }
+        }
+
+        return mrList;
+    }
+
+    @Override
+    public List<Triple> getRelations()
+    {
+        // TODO Auto-generated method stub
+        List<Triple> extractedRelations = new ArrayList<Triple>();
+        for (String lexiconName : uby.getLexiconNames()) {
+            lexiconName = "WordNet";
+            Lexicon lex;
+            try {
+                lex = uby.getLexiconByName(lexiconName);
+                Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(
+                        EPartOfSpeech.noun, lex);
+                while (lexicalEntryIterator.hasNext()) {
+                    LexicalEntry currentLexicalEntry = lexicalEntryIterator.next();
+//                    System.out.println(currentLexicalEntry.getLemmaForm() + " "
+//                            + currentLexicalEntry.getId() + " " + currentLexicalEntry.getSynsets()
+//                            + ":");
+                   extractedRelations.addAll(generateMorphologicalRelations(currentLexicalEntry));
+                }
+            }
+            catch (UbyInvalidArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+        return extractedRelations;
+    }
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args)
+        throws UbyInvalidArgumentException
+    {
+        // TODO Auto-generated method stub
+        DBConfig db = new DBConfig("localhost/uby_test", "com.mysql.jdbc.Driver", "mysql", "root",
+                "ehsanukp", true, false);
+        UbyRelationExtraction relExtractor = new MorphologicalRelationExtraction(db);
+        PrintWriter writer;
+        try {
+            writer = new PrintWriter("./synsetsense.output");
+            for (Triple relation:relExtractor.getRelations()){
+                writer.println(relation);
+            }
+            writer.flush();
+            writer.close();
+        }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+    }
+
+}

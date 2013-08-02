@@ -1,0 +1,163 @@
+/**
+ *
+ */
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxis;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+/**
+ * @author khoddam
+ *
+ */
+public class SenseAxisRelationExtraction
+    extends UbyRelationExtraction
+{
+
+    private final Log log = LogFactory.getLog(SenseAxisRelationExtraction.class);
+
+    /**
+     * @param db
+     * @throws UbyInvalidArgumentException
+     */
+    public SenseAxisRelationExtraction(DBConfig db)
+        throws UbyInvalidArgumentException
+    {
+        super(db);
+        // super.statisticsExtractor = new StatisticsExtractor("WN_SenseAxis.stat");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction.
+     * UbyRelationExtraction#dumpRelations(java.io.PrintWriter)
+     */
+    @Override
+    public void dumpRelations(PrintWriter writer)
+    {
+        String lexiconName = "WordNet";
+        Lexicon lex;
+        List<Triple> triples;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            for (EPartOfSpeech pos : POSList) {
+                System.out.println("*******************************************************");
+
+                Iterator<Sense> senseIterator = uby.getSenseIterator(lex);
+
+                while (senseIterator.hasNext()) {
+                    Sense sense = senseIterator.next();
+
+                    String lemma = sense.getLexicalEntry().getLemmaForm();
+                    triples = getSenseAxisRelations(sense, lemma, pos, lexiconName);
+
+                    for (Triple triple : triples) {
+                        log.info(triple);
+                        writer.println(triple);
+                    }
+
+                    writer.flush();
+                    // this.statisticsExtractor.addData(triples);
+                    triples.clear();
+
+                }
+                // String message = pos + ":";
+                // this.statisticsExtractor.dumpStatistics(message);
+            }
+            // super.statisticsExtractor.close();
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction.
+     * UbyRelationExtraction#dumpRelationsStatistics(java.io.PrintWriter)
+     */
+    @Override
+    public void dumpRelationsStatistics(PrintWriter writer)
+    {
+
+    }
+
+    private List<Triple> getSenseAxisRelations(Sense sense, String lemma, EPartOfSpeech pos,
+            String lexiconName)
+    {
+        // TODO Auto-generated method stub
+        List<Triple> saxList = new ArrayList<Triple>();
+        for (SenseAxis senseAxis : this.uby.getSenseAxisBySense(sense)) {
+            Triple temp;
+            if (senseAxis.getSenseOne() == null || senseAxis.getSenseOne().getId() == null
+                    || senseAxis.getSenseTwo() == null || senseAxis.getSenseTwo().getId() == null) {
+                continue;
+            }
+            else {
+                Sense senseOne = senseAxis.getSenseOne();
+                Sense senseTwo = senseAxis.getSenseTwo();
+                Entity leftHandSide = new Entity(senseOne.getId(), EntityTypes.SENSE, lemma, pos,
+                        lexiconName);
+                String targetLemma = senseTwo.getLexicalEntry().getLemmaForm();
+                // Be careful about POS
+                Entity rightHandSide = new Entity(senseTwo.getId(), EntityTypes.SENSE, targetLemma,
+                        pos, lexiconName);
+
+                Relation relation = new Relation(senseAxis.getSenseAxisType().name(), "SenseAxis");
+
+                temp = new Triple(leftHandSide, rightHandSide, relation);
+
+                // System.out.println(temp);
+                // log.info(temp);
+                saxList.add(temp);
+
+            }
+        }
+
+        return saxList;
+    }
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args)
+        throws UbyInvalidArgumentException
+    {
+        // TODO Auto-generated method stub
+        DBConfig db = new DBConfig("localhost/uby_academic", "com.mysql.jdbc.Driver", "mysql",
+                "root", "ehsanukp", false);
+        SenseAxisRelationExtraction relExtractor = new SenseAxisRelationExtraction(db);
+
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("./WN_SenseAxis.output");
+            relExtractor.dumpRelations(writer);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        finally {
+            writer.close();
+        }
+
+    }
+
+}

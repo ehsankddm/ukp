@@ -1,0 +1,176 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+public class Triple
+{
+    private String leftHandSide;
+    private String rightHandSide;
+    private String relation;
+    private String leftHandSideType;
+    private String rightHandSideType;
+
+    public Triple(String leftHandSide, String rightHandSide, String relation)
+    {
+        super();
+        this.leftHandSide = leftHandSide;
+        this.rightHandSide = rightHandSide;
+        this.relation = relation;
+    }
+
+
+
+    /**
+     * @return the leftHandSide
+     */
+    public String getLeftHandSide()
+    {
+        return leftHandSide;
+    }
+
+
+
+    /**
+     * @param leftHandSide the leftHandSide to set
+     */
+    public void setLeftHandSide(String leftHandSide)
+    {
+        this.leftHandSide = leftHandSide;
+    }
+
+
+
+    /**
+     * @return the rightHandSide
+     */
+    public String getRightHandSide()
+    {
+        return rightHandSide;
+    }
+
+
+
+    /**
+     * @param rightHandSide the rightHandSide to set
+     */
+    public void setRightHandSide(String rightHandSide)
+    {
+        this.rightHandSide = rightHandSide;
+    }
+
+
+
+    /**
+     * @return the relation
+     */
+    public String getRelation()
+    {
+        return relation;
+    }
+
+
+
+    /**
+     * @param relation the relation to set
+     */
+    public void setRelation(String relation)
+    {
+        this.relation = relation;
+    }
+
+
+
+    @Override
+    public String toString()
+    {
+        return leftHandSide + "\t" + relation + "" + "\t" + rightHandSide;
+
+    }
+
+
+
+    /**
+     * @return the leftHandSideType
+     */
+    public String getLeftHandSideType()
+    {
+        return leftHandSideType;
+    }
+
+    /**
+     * @param leftHandSideType the leftHandSideType to set
+     */
+    public void setLeftHandSideType(String leftHandSideType)
+    {
+        this.leftHandSideType = leftHandSideType;
+    }
+
+    /**
+     * @return the rightHandSideType
+     */
+    public String getRightHandSideType()
+    {
+        return rightHandSideType;
+    }
+
+    /**
+     * @param rightHandSideType the rightHandSideType to set
+     */
+    public void setRightHandSideType(String rightHandSideType)
+    {
+        this.rightHandSideType = rightHandSideType;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((leftHandSide == null) ? 0 : leftHandSide.hashCode());
+        result = prime * result + ((relation == null) ? 0 : relation.hashCode());
+        result = prime * result + ((rightHandSide == null) ? 0 : rightHandSide.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Triple other = (Triple) obj;
+        if (leftHandSide == null) {
+            if (other.leftHandSide != null) {
+                return false;
+            }
+        }
+        else if (!leftHandSide.equals(other.leftHandSide)) {
+            return false;
+        }
+        if (relation == null) {
+            if (other.relation != null) {
+                return false;
+            }
+        }
+        else if (!relation.equals(other.relation)) {
+            return false;
+        }
+        if (rightHandSide == null) {
+            if (other.rightHandSide != null) {
+                return false;
+            }
+        }
+        else if (!rightHandSide.equals(other.rightHandSide)) {
+            return false;
+        }
+        return true;
+    }
+
+
+
+
+}

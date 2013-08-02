@@ -1,0 +1,47 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.util.Iterator;
+
+import de.tudarmstadt.ukp.lmf.api.Uby;
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.morphology.RelatedForm;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class MorphologicalRelationExtraction
+{
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args) throws UbyInvalidArgumentException
+    {
+        // TODO Auto-generated method stub
+        DBConfig db = new DBConfig("localhost/uby_test", "com.mysql.jdbc.Driver", "mysql", "root",
+                "ehsanukp", true, false);
+        Uby uby = new Uby(db);
+        System.out.println(uby.getLexiconNames());
+        for (String lexiconName : uby.getLexiconNames()) {
+            lexiconName = "WordNet";
+            Lexicon lex = uby.getLexiconByName(lexiconName);
+
+
+            Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(EPartOfSpeech.noun, lex);
+            while (lexicalEntryIterator.hasNext()) {
+                LexicalEntry currentLexicalEntry = lexicalEntryIterator.next();
+                System.out.println(currentLexicalEntry.getWordForms());
+                System.out.println(currentLexicalEntry.getLemmaForm()+" "+currentLexicalEntry.getId()+" "+currentLexicalEntry.getSynsets()+":");
+                for (RelatedForm relatedForm:currentLexicalEntry.getRelatedForms()  ){
+                    System.out.println("\t\t\t"+currentLexicalEntry.getSenses()+"\t"+relatedForm.getRelType().name()+"\t"+relatedForm.getTargetSense());
+                }
+                System.out.println();
+                System.out.println();
+
+            }
+        }
+    }
+
+}

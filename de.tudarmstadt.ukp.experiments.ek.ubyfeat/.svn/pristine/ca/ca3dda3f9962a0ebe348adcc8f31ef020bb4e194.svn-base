@@ -1,0 +1,245 @@
+/**
+ *
+ */
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxis;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+/**
+ * @author khoddam
+ *
+ */
+public class SenseAxisRelationExtraction
+    extends UbyRelationExtraction
+{
+
+    private final Log log = LogFactory.getLog(SenseAxisRelationExtraction.class);
+
+    /**
+     * @param db
+     * @throws UbyInvalidArgumentException
+     */
+    public SenseAxisRelationExtraction(DBConfig db)
+        throws UbyInvalidArgumentException
+    {
+        super(db);
+        // super.statisticsExtractor = new StatisticsExtractor("WN_SenseAxis.stat");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction.
+     * UbyRelationExtraction#dumpRelations(java.io.PrintWriter)
+     */
+    @Override
+    public void dumpRelations(Dumper dumper)
+    {
+        String lexiconName = "WordNet";
+        Lexicon lex;
+        List<Triplet> triplets;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            for (EPartOfSpeech pos : POSList) {
+                System.out.println("*******************************************************");
+
+                Iterator<Sense> senseIterator = uby.getSenseIterator(lex);
+
+                while (senseIterator.hasNext()) {
+                    Sense sense = senseIterator.next();
+
+                    String lemma = sense.getLexicalEntry().getLemmaForm();
+                    triplets = getSenseAxisRelations(sense, lemma, pos, lexiconName);
+                    dumper.addTriplets(triplets);
+                    // this.statisticsExtractor.addData(triples);
+                    triplets.clear();
+
+                }
+                String message = pos + ":";
+                this.statisticsExtractor.dumpStatistics(message);
+            }
+            super.statisticsExtractor.close();
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction.
+     * UbyRelationExtraction#dumpRelationsStatistics(java.io.PrintWriter)
+     */
+    @Override
+    public void dumpRelationsStatistics(PrintWriter writer)
+    {
+
+    }
+
+    private Triplet getSenseAxisRelations(SenseAxis senseAxis, String lexiconName)
+    {
+
+        if (senseAxis.getSenseOne() == null || senseAxis.getSenseOne().getId() == null
+                || senseAxis.getSenseTwo() == null || senseAxis.getSenseTwo().getId() == null) {
+            log.info("You are fucked up ...." + "Some information is missed in this SenseAxis: "
+                    + senseAxis);
+            System.out.println("KOS");
+
+        }
+        else if (lexiconName.equals(senseAxis.getSenseOne().getLexicalEntry().getLexicon()
+                .getName())
+                || lexiconName.equals(senseAxis.getSenseTwo().getLexicalEntry().getLexicon()
+                        .getName())
+
+        ) {
+
+            Sense sourceSense = senseAxis.getSenseOne();
+            Sense targetSense = senseAxis.getSenseTwo();
+
+            String sourceLemma = sourceSense.getLexicalEntry().getLemmaForm();
+            String targetLemma = targetSense.getLexicalEntry().getLemmaForm();
+
+            String sourceLexicon = sourceSense.getLexicalEntry().getLexicon().getName();
+            String targetLexicon = targetSense.getLexicalEntry().getLexicon().getName();
+
+            String sourceExternalRefID = sourceSense.getMonolingualExternalRefs().get(0)
+                    .getExternalReference();
+            String targetExternalRefID = targetSense.getMonolingualExternalRefs().get(0)
+                    .getExternalReference();
+
+            Entity leftHandSide = new Entity(sourceSense.getId(), sourceExternalRefID,
+                    EntityTypes.SENSE, sourceLemma,
+                    sourceSense.getLexicalEntry().getPartOfSpeech(), sourceLexicon);
+
+            // Be careful about POS
+            Entity rightHandSide = new Entity(targetSense.getId(), targetExternalRefID,
+                    EntityTypes.SENSE, targetLemma,
+                    targetSense.getLexicalEntry().getPartOfSpeech(), targetLexicon);
+
+            Relation relation = new Relation(senseAxis.getSenseAxisType().name(), "SenseAxis");
+
+            Triplet temp = new Triplet(leftHandSide, rightHandSide, relation);
+            System.out.println(temp);
+            return temp;
+
+        }
+        return null;
+
+    }
+
+    private List<Triplet> getSenseAxisRelations(Sense sense, String lemma, EPartOfSpeech pos,
+            String lexiconName)
+    {
+        // TODO Auto-generated method stub
+        List<Triplet> saxList = new ArrayList<Triplet>();
+
+        for (SenseAxis senseAxis : this.uby.getSenseAxisBySense(sense)) {
+            Triplet temp;
+            if (senseAxis.getSenseOne() == null || senseAxis.getSenseOne().getId() == null
+                    || senseAxis.getSenseTwo() == null || senseAxis.getSenseTwo().getId() == null) {
+                continue;
+            }
+            else {
+                Sense senseOne = senseAxis.getSenseOne();
+                Sense senseTwo = senseAxis.getSenseTwo();
+
+                String sourceExternalRefID = senseOne.getMonolingualExternalRefs().get(0)
+                        .getExternalReference();
+                String targetExternalRefID = senseTwo.getMonolingualExternalRefs().get(0)
+                        .getExternalReference();
+
+                Entity leftHandSide = new Entity(senseOne.getId(), sourceExternalRefID,
+                        EntityTypes.SENSE, lemma, pos, lexiconName);
+
+                String targetLemma = senseTwo.getLexicalEntry().getLemmaForm();
+                // Be careful about POS
+                Entity rightHandSide = new Entity(senseTwo.getId(), targetExternalRefID,
+                        EntityTypes.SENSE, targetLemma, pos, lexiconName);
+
+                Relation relation = new Relation(senseAxis.getSenseAxisType().name(), "SenseAxis");
+
+                temp = new Triplet(leftHandSide, rightHandSide, relation);
+
+                // System.out.println(temp);
+                // log.info(temp);
+                saxList.add(temp);
+
+            }
+        }
+
+        return saxList;
+    }
+
+    public void dumpRelations2(PrintWriter writer)
+    {
+        String lexiconName = "FrameNet";
+        Lexicon lex;
+
+        SenseAxis senseAxis;
+        Iterator<SenseAxis> senseAxisIterator;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+
+            System.out.println("*******************************************************");
+
+            senseAxisIterator = uby.getSenseAxisIterator();
+
+            while (senseAxisIterator.hasNext()) {
+                senseAxis = senseAxisIterator.next();
+
+                Triplet triple = getSenseAxisRelations(senseAxis, lexiconName);
+                if (triple != null) {
+                    log.info(triple);
+                    writer.println(triple);
+                    writer.flush();
+                }
+                // this.statisticsExtractor.addData(triples);
+
+            }
+            // String message = pos + ":";
+            // this.statisticsExtractor.dumpStatistics(message);
+
+            // super.statisticsExtractor.close();
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args)
+        throws UbyInvalidArgumentException
+    {
+        // TODO Auto-generated method stub
+        DBConfig db = new DBConfig("localhost/uby_academic", "com.mysql.jdbc.Driver", "mysql",
+                "root", "ehsanukp", false);
+        SenseAxisRelationExtraction relExtractor = new SenseAxisRelationExtraction(db);
+
+        Dumper dumper = new LocalFileDumper(".", "FN_SenseAxis2.output");
+//        writer = new PrintWriter("./FN_SenseAxis.output");
+        relExtractor.dumpRelations(dumper);
+        dumper.close();
+    }
+
+}

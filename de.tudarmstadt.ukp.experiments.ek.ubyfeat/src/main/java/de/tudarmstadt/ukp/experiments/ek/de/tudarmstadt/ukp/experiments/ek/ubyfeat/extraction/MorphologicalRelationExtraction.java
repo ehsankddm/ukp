@@ -1,0 +1,155 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.morphology.RelatedForm;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class MorphologicalRelationExtraction
+    extends UbyRelationExtraction
+{
+    private final Log log = LogFactory.getLog(MorphologicalRelationExtraction.class);
+
+    public MorphologicalRelationExtraction(DBConfig db)
+        throws UbyInvalidArgumentException
+    {
+        super(db);
+        super.statisticsExtractor = new StatisticsExtractor("WN_Morphological_Feat.stat");
+
+    }
+
+    @Override
+    public void dumpRelations(Dumper dumper)
+    {
+
+        String lexiconName = "WordNet";
+        Lexicon lex;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            for (EPartOfSpeech pos : this.POSList) {
+
+                Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(pos, lex);
+                while (lexicalEntryIterator.hasNext()) {
+                    LexicalEntry currentLexicalEntry = lexicalEntryIterator.next();
+                    log.info(currentLexicalEntry);
+                    List<Triplet> triplets = getMorphologicalRelationsAmongLexemes(
+                            currentLexicalEntry, pos, lexiconName);
+                    dumper.dumpTriplets(triplets);
+                    // this.statisticsExtractor.addData(triples);
+
+                }
+                String message = pos + ":";
+                this.statisticsExtractor.dumpStatistics(message);
+            }
+            super.statisticsExtractor.close();
+        }
+        catch (UbyInvalidArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    // Relation should not be generalized to Senses !!!!!!!! Problemo!
+    private List<Triplet> getMorphologicalRelations(LexicalEntry lexicalEntry, EPartOfSpeech pos,
+            String lexName)
+    {
+        List<Triplet> triplets = new ArrayList<Triplet>();
+        for (RelatedForm relatedForm : lexicalEntry.getRelatedForms()) {
+
+            for (Sense sense : lexicalEntry.getSenses()) {
+
+                if (sense.getId() != null && relatedForm.getTargetSense().getId() != null) {
+
+                    String sourceExternalRefID = sense.getMonolingualExternalRefs().get(0)
+                            .getExternalReference();
+
+                    String targetExternalRefID = relatedForm.getTargetSense()
+                            .getMonolingualExternalRefs().get(0).getExternalReference();
+
+                    Entity leftHandSide = new Entity(sense.getId(), sourceExternalRefID,
+                            EntityTypes.SENSE, lexicalEntry.getLemmaForm(), pos, lexName);
+                    // Be careful about this POS
+                    Entity rightHandSide = new Entity(relatedForm.getTargetSense().getId(),
+                            targetExternalRefID, EntityTypes.SENSE, relatedForm.getTargetSense()
+                                    .getLexicalEntry().getLemmaForm(), pos, lexName);
+
+                    Relation relation = new Relation("morphological", relatedForm.getRelType()
+                            .name());
+                    Triplet temp = new Triplet(leftHandSide, rightHandSide, relation);
+                    // writer.println(temp);
+                    // writer.flush();
+                    triplets.add(temp);
+
+                }
+            }
+        }
+        return triplets;
+    }
+
+    private List<Triplet> getMorphologicalRelationsAmongLexemes(LexicalEntry lexicalEntry,
+            EPartOfSpeech pos, String lexName)
+    {
+        List<Triplet> triplets = new ArrayList<Triplet>();
+        for (RelatedForm relatedForm : lexicalEntry.getRelatedForms()) {
+            // Be careful about these two lines, not tested
+
+            String sourceExternalRefID = lexicalEntry.getSenses().get(0)
+                    .getMonolingualExternalRefs().get(0).getExternalReference();
+
+            String targetExternalRefID = relatedForm.getTargetSense().getMonolingualExternalRefs()
+                    .get(0).getExternalReference();
+
+            Entity leftHandSide = new Entity(lexicalEntry.getId(), sourceExternalRefID,
+                    EntityTypes.LEXICAL_ENTRY, lexicalEntry.getLemmaForm(), pos, lexName);
+            // Be careful about this POS
+
+            Entity rightHandSide = new Entity(relatedForm.getTargetLexicalEntry().getId(),
+                    targetExternalRefID,
+                    EntityTypes.LEXICAL_ENTRY, relatedForm.getTargetLexicalEntry().getLemmaForm(),
+                    relatedForm.getTargetLexicalEntry().getPartOfSpeech(), lexName);
+
+            Relation relation = new Relation("morphological", relatedForm.getRelType().name());
+            Triplet temp = new Triplet(leftHandSide, rightHandSide, relation);
+            // writer.println(temp);
+            // writer.flush();
+            triplets.add(temp);
+
+        }
+        return triplets;
+    }
+
+    @Override
+    public void dumpRelationsStatistics(PrintWriter writer)
+    {
+
+    }
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args)
+        throws UbyInvalidArgumentException
+    {
+        // TODO Auto-generated method stub
+        DBConfig db = new DBConfig("localhost/uby_academic", "com.mysql.jdbc.Driver", "mysql",
+                "root", "ehsanukp", false);
+        UbyRelationExtraction relExtractor = new MorphologicalRelationExtraction(db);
+        // PrintWriter writer = null;
+        Dumper dumper = new LocalFileDumper(".", "WN_Morphological_Feat.output");
+        relExtractor.dumpRelations(dumper);
+
+    }
+
+}

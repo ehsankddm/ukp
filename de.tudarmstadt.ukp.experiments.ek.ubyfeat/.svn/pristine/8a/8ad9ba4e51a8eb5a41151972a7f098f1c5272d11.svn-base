@@ -1,0 +1,157 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+
+public class Triple
+{
+    private Entity leftHandSide;
+    private Entity rightHandSide;
+    private Relation relation;
+
+    public Triple(Entity leftHandSide, Entity rightHandSide, Relation relation)
+    {
+        super();
+        this.leftHandSide = leftHandSide;
+        this.rightHandSide = rightHandSide;
+        this.relation = relation;
+    }
+
+
+
+    /**
+     * @return the leftHandSide
+     */
+    public Entity getLeftHandSide()
+    {
+        return leftHandSide;
+    }
+
+
+
+    /**
+     * @param leftHandSide the leftHandSide to set
+     */
+    public void setLeftHandSide(Entity leftHandSide)
+    {
+        this.leftHandSide = leftHandSide;
+    }
+
+
+
+    /**
+     * @return the rightHandSide
+     */
+    public Entity getRightHandSide()
+    {
+        return rightHandSide;
+    }
+
+
+
+    /**
+     * @param rightHandSide the rightHandSide to set
+     */
+    public void setRightHandSide(Entity rightHandSide)
+    {
+        this.rightHandSide = rightHandSide;
+    }
+
+
+
+    /**
+     * @return the relation
+     */
+    public Relation getRelation()
+    {
+        return relation;
+    }
+
+
+
+    /**
+     * @param relation the relation to set
+     */
+    public void setRelation(Relation relation)
+    {
+        this.relation = relation;
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((leftHandSide == null) ? 0 : leftHandSide.hashCode());
+        result = prime * result + ((relation == null) ? 0 : relation.hashCode());
+        result = prime * result + ((rightHandSide == null) ? 0 : rightHandSide.hashCode());
+        return result;
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Triple)) {
+            return false;
+        }
+        Triple other = (Triple) obj;
+        if (leftHandSide == null) {
+            if (other.leftHandSide != null) {
+                return false;
+            }
+        }
+        else if (!leftHandSide.equals(other.leftHandSide)) {
+            return false;
+        }
+        if (relation == null) {
+            if (other.relation != null) {
+                return false;
+            }
+        }
+        else if (!relation.equals(other.relation)) {
+            return false;
+        }
+        if (rightHandSide == null) {
+            if (other.rightHandSide != null) {
+                return false;
+            }
+        }
+        else if (!rightHandSide.equals(other.rightHandSide)) {
+            return false;
+        }
+        return true;
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return leftHandSide+"\t"+relation+"\t"+rightHandSide;
+    }
+
+
+
+    public static void main(String[] args)
+    {
+
+    }
+
+}

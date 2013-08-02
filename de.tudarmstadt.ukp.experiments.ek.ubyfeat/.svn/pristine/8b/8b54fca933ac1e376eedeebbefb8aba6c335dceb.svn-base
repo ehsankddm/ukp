@@ -1,0 +1,151 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxis;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxisRelation;
+import de.tudarmstadt.ukp.lmf.model.semantics.SenseRelation;
+import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
+import de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class SynsetSenseRelationExtraction
+    extends UbyRelationExtraction
+{
+
+    public SynsetSenseRelationExtraction(DBConfig db)
+        throws Exception
+    {
+        super(db);
+
+    }
+
+    private List<Triple> generateSenseRelations(Sense sense)
+    {
+
+        List<Triple> srList = new ArrayList<Triple>();
+        for (SenseRelation senseRelation : sense.getSenseRelations()) {
+            String relID = senseRelation.getRelType() + ":" + senseRelation.getRelName();
+            String sourceID = senseRelation.getSource().getId();
+            String targetID = senseRelation.getTarget().getId();
+            Triple temp =new Triple(sourceID, targetID, relID);
+            temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+            temp.setRightHandSideType(EntityTypes.SENSE.getLabel());
+            System.out.println(temp);
+            srList.add(temp);
+
+        }
+
+        return srList;
+
+    }
+
+    private List<Triple> generateSynsetRelations(Synset synset)
+    {
+        List<Triple> srList = new ArrayList<Triple>();
+        for (SynsetRelation synsetRelation : synset.getSynsetRelations()) {
+            String relID = synsetRelation.getRelType() + ":" + synsetRelation.getRelName();
+            String sourceID = synsetRelation.getSource().getId();
+            String targetID = synsetRelation.getTarget().getId();
+            Triple temp =new Triple(sourceID, targetID, relID);
+            temp.setLeftHandSideType(EntityTypes.SYNSET.getLabel());
+            temp.setRightHandSideType(EntityTypes.SYNSET.getLabel());
+            System.out.println(temp);
+            srList.add(temp);
+
+        }
+        return srList;
+    }
+
+    private List<Triple> generateSenseAxisRelations(List<SenseAxis> senseAxises)
+    {
+        List<Triple> saList = new ArrayList<Triple>();
+        for (SenseAxis senseAxis : senseAxises) {
+            Sense senseOne = senseAxis.getSenseOne();
+            Sense senseTwo = senseAxis.getSenseTwo();
+            Triple temp = new Triple(senseOne.getId(), senseTwo.getId(), senseAxis.getSenseAxisType()
+                    .toString());
+            temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+            temp.setRightHandSideType(EntityTypes.SENSE.getLabel());
+            System.out.println(temp);
+            saList.add(temp);
+
+            Synset synsetOne = senseAxis.getSynsetOne();
+            Synset synsetTwo = senseAxis.getSynsetTwo();
+            if (synsetOne == null || synsetTwo == null) {
+                // System.out.println(synsetOne);
+                // System.out.println(synsetTwo);
+            }
+            // synset axis relation
+            else {
+                // System.out.println("   \t\t\t" + synsetOne.getId() + "\t"
+                // + senseAxis.getSenseAxisType() + "\t" + synsetTwo.getId());
+            }
+            for (SenseAxisRelation saRelation : senseAxis.getSenseAxisRelations()) {
+                // Sense Axis Relation
+                temp =new Triple(senseAxis.getId(), saRelation.getTarget().getId(), saRelation
+                        .getRelType() + ":" + saRelation.getRelName());
+
+                temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+                temp.setRightHandSideType(EntityTypes.SENSE.getLabel());
+                System.out.println(temp);
+                saList.add(temp);
+            }
+
+        }
+        return saList;
+    }
+
+    @Override
+    public List<Triple> getRelations()
+    {
+        List<Triple> extractedRelations = new ArrayList<Triple>();
+        for (String lexiconName : uby.getLexiconNames()) {
+            // lexiconName = "WordNet";
+            Lexicon lex;
+            try {
+                lex = uby.getLexiconByName(lexiconName);
+                Iterator<Synset> synsetIterator = uby.getSynsetIterator(lex);
+                while (synsetIterator.hasNext()) {
+                    Synset synset = synsetIterator.next();
+
+                    extractedRelations.addAll(generateSynsetRelations(synset));
+
+                    for (Sense sense : synset.getSenses()) {
+                        extractedRelations.addAll(generateSenseRelations(sense));
+                        extractedRelations.addAll(generateSenseAxisRelations(uby
+                                .getSenseAxisBySense(sense)));
+                    }
+                }
+            }
+            catch (UbyInvalidArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return extractedRelations;
+    }
+
+    /**
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args)
+        throws Exception
+    {
+        DBConfig db = new DBConfig("localhost/uby_test", "com.mysql.jdbc.Driver", "mysql", "root",
+                "ehsanukp", true, false);
+        UbyRelationExtraction relExtractor = new SynsetSenseRelationExtraction(db);
+        for (Triple relation:relExtractor.getRelations()){
+            System.out.println(relation);
+        }
+
+
+    }
+
+}

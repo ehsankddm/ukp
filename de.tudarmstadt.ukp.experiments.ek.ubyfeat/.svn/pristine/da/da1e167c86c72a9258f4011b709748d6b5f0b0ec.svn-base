@@ -1,0 +1,179 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
+import de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class SynsetSenseRelationExtraction
+    extends UbyRelationExtraction
+{
+    private final Log log = LogFactory.getLog(SynsetSenseRelationExtraction.class);
+
+
+    public SynsetSenseRelationExtraction(DBConfig db)
+        throws Exception
+    {
+        super(db);
+
+    }
+
+    /*
+     * private List<Triple> generateSenseRelations(Sense sense) {
+     *
+     * List<Triple> srList = new ArrayList<Triple>(); for (SenseRelation senseRelation :
+     * sense.getSenseRelations()) { String relID = senseRelation.getRelType() + ":" +
+     * senseRelation.getRelName(); if (senseRelation.getSource() == null ||
+     * senseRelation.getSource().getId() == null || senseRelation.getTarget() == null ||
+     * senseRelation.getTarget().getId() == null) { continue; } String sourceID =
+     * senseRelation.getSource().getId(); String targetID = senseRelation.getTarget().getId();
+     * Triple temp = new Triple(sourceID, targetID, relID);
+     * temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+     * temp.setRightHandSideType(EntityTypes.SENSE.getLabel()); // System.out.println(temp); //
+     * log.info(temp); srList.add(temp);
+     *
+     * }
+     *
+     * return srList;
+     *
+     * }
+     */
+
+    private void dumpSynsetRelations(Synset synset, EPartOfSpeech pos, String lexName, PrintWriter writer)
+    {
+
+
+        for (SynsetRelation synsetRelation : synset.getSynsetRelations()) {
+            if (synsetRelation.getSource() == null || synsetRelation.getSource().getId() == null
+                    || synsetRelation.getTarget() == null
+                    || synsetRelation.getTarget().getId() == null) {
+                continue;
+            }
+
+//            String targetID = synsetRelation.getTarget().getId();
+
+            Entity leftHandSide = new Entity(synsetRelation.getSource().getId(),
+                    EntityTypes.SYNSET, pos, lexName);
+            // Be careful about this POS
+            Entity rightHandSide = new Entity(synsetRelation.getTarget().getId(),
+                    EntityTypes.SYNSET, pos, lexName);
+
+            Relation relation = new Relation(synsetRelation.getRelType().name(),
+                    synsetRelation.getRelName());
+
+            Triple temp = new Triple(leftHandSide, rightHandSide, relation);
+
+            // System.out.println(temp);
+            // log.info(temp);
+//            srList.add(temp);
+            writer.println(temp);
+            writer.flush();
+
+        }
+
+    }
+
+    /*
+     * private List<Triple> generateSenseAxisRelations(List<SenseAxis> senseAxises) { List<Triple>
+     * saList = new ArrayList<Triple>(); for (SenseAxis senseAxis : senseAxises) { Triple temp; if
+     * (senseAxis.getSenseOne() == null || senseAxis.getSenseOne().getId() == null ||
+     * senseAxis.getSenseTwo() == null || senseAxis.getSenseTwo().getId() == null) {
+     *
+     * } else { Sense senseOne = senseAxis.getSenseOne(); Sense senseTwo = senseAxis.getSenseTwo();
+     * temp = new Triple(senseOne.getId(), senseTwo.getId(), senseAxis.getSenseAxisType()
+     * .toString()); temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+     * temp.setRightHandSideType(EntityTypes.SENSE.getLabel()); // System.out.println(temp); //
+     * log.info(temp); saList.add(temp); } Synset synsetOne = senseAxis.getSynsetOne(); Synset
+     * synsetTwo = senseAxis.getSynsetTwo(); if (synsetOne == null || synsetTwo == null) { //
+     * System.out.println(synsetOne); // System.out.println(synsetTwo); } // synset axis relation
+     * else { // System.out.println("   \t\t\t" + synsetOne.getId() + "\t" // +
+     * senseAxis.getSenseAxisType() + "\t" + synsetTwo.getId()); } for (SenseAxisRelation saRelation
+     * : senseAxis.getSenseAxisRelations()) { // Sense Axis Relation
+     *
+     * if (senseAxis.getId() != null && saRelation.getTarget() != null &&
+     * saRelation.getTarget().getId() != null) { temp = new Triple(senseAxis.getId(),
+     * saRelation.getTarget().getId(), saRelation.getRelType() + ":" + saRelation.getRelName());
+     *
+     * temp.setLeftHandSideType(EntityTypes.SENSE.getLabel());
+     * temp.setRightHandSideType(EntityTypes.SENSE.getLabel()); // System.out.println(temp); //
+     * log.info(temp); saList.add(temp); } }
+     *
+     * } return saList; }
+     */
+    @Override
+    public void dumpRelations(PrintWriter writer)
+    {
+//        List<Triple> extractedRelations = new ArrayList<Triple>();
+
+            String lexiconName = "WordNet";
+            Lexicon lex;
+            try {
+                lex = uby.getLexiconByName(lexiconName);
+                for (EPartOfSpeech pos : POSList) {
+                    Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(pos,
+                            lex);
+                    while (lexicalEntryIterator.hasNext()) {
+                        LexicalEntry lexicalEntry = lexicalEntryIterator.next();
+                        log.info(lexicalEntry);
+                        for (Synset synset : lexicalEntry.getSynsets()) {
+                            dumpSynsetRelations(synset, pos,lexiconName, writer);
+                            log.info(synset);
+                        }
+                    }
+                }
+                // Iterator<Synset> synsetIterator = uby.getSynsetIterator(lex);
+                // while (synsetIterator.hasNext()) {
+                // Synset synset = synsetIterator.next();
+                // extractedRelations.addAll(generateSynsetRelations(synset));
+                // System.out.println(synset);
+                // // for (Sense sense : synset.getSenses()) {
+                // // extractedRelations.addAll(generateSenseRelations(sense));
+                // // extractedRelations.addAll(generateSenseAxisRelations(uby
+                // // .getSenseAxisBySense(sense)));
+                // // }
+                // }
+            }
+            catch (UbyInvalidArgumentException e) {
+
+                e.printStackTrace();
+            }
+
+
+    }
+
+    /**
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args)
+        throws Exception
+    {
+        DBConfig db = new DBConfig("localhost/uby_academic", "com.mysql.jdbc.Driver", "mysql", "root",
+                "ehsanukp",false);
+        UbyRelationExtraction relExtractor = new SynsetSenseRelationExtraction(db);
+
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("./WN_synset_feat.output");
+            relExtractor.dumpRelations(writer);
+       }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally {
+            writer.close();
+        }
+
+    }
+}

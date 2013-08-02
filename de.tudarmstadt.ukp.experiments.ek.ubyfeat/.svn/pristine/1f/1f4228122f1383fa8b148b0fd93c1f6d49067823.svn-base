@@ -1,0 +1,278 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import de.tudarmstadt.ukp.lmf.exceptions.UbyInvalidArgumentException;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.semantics.PredicateRelation;
+import de.tudarmstadt.ukp.lmf.model.semantics.SemanticPredicate;
+import de.tudarmstadt.ukp.lmf.model.semantics.SenseRelation;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class SenseRelationExtraction
+    extends UbyRelationExtraction
+{
+    private final Log log = LogFactory.getLog(SenseRelationExtraction.class);
+
+    public SenseRelationExtraction(DBConfig db)
+        throws UbyInvalidArgumentException
+    {
+        super(db);
+        // TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public void dumpRelations(PrintWriter writer)
+    {
+        String lexiconName = "WordNet";
+        Lexicon lex;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            for (EPartOfSpeech pos : POSList) {
+                Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(pos, lex);
+                while (lexicalEntryIterator.hasNext()) {
+                    LexicalEntry lexicalEntry = lexicalEntryIterator.next();
+                    String lemma = lexicalEntry.getLemmaForm();
+                    log.info(lexicalEntry);
+                    for (Sense sense : lexicalEntry.getSenses()) {
+                        log.info(sense);
+                        dumpSenseRelations(sense, lemma, pos, lexiconName, writer);
+
+                    }
+                }
+            }
+
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+    private void dumpSenseRelations(Sense sense, String lemma, EPartOfSpeech pos,
+            String lexiconName, PrintWriter writer)
+    {
+        for (SenseRelation senseRelation : sense.getSenseRelations()) {
+            if (senseRelation.getSource() == null || senseRelation.getSource().getId() == null
+                    || senseRelation.getTarget() == null
+                    || senseRelation.getTarget().getId() == null) {
+                continue;
+            }
+            Entity leftHandSide = new Entity(senseRelation.getSource().getId(), EntityTypes.SENSE,
+                    lemma, pos, lexiconName);
+            String targetLemma = senseRelation.getTarget().getLexicalEntry().getLemmaForm();
+
+            // Be careful about this POS
+            Entity rightHandSide = new Entity(senseRelation.getTarget().getId(), EntityTypes.SENSE,
+                    targetLemma, pos, lexiconName);
+
+            Relation relation = new Relation(senseRelation.getRelType().name(),
+                    senseRelation.getRelName());
+
+            Triple temp = new Triple(leftHandSide, rightHandSide, relation);
+
+            // System.out.println(temp);
+            // log.info(temp);
+            for (String rel : temp.generalizeTriple()) {
+                writer.println(rel);
+            }
+            writer.flush();
+
+        }
+
+    }
+
+    @Override
+    public void dumpRelationsStatistics(PrintWriter writer)
+    {
+        String lexiconName = "WordNet";
+        Lexicon lex;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            Map<String, Integer> counts;
+            Integer count;
+            for (EPartOfSpeech pos : POSList) {
+                System.out.println("*******************************************************");
+                counts = new HashMap<String, Integer>();
+                Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(pos, lex);
+                while (lexicalEntryIterator.hasNext()) {
+                    LexicalEntry lexicalEntry = lexicalEntryIterator.next();
+                    String lemma = lexicalEntry.getLemmaForm();
+                    log.info(lexicalEntry);
+                    for (Sense sense : lexicalEntry.getSenses()) {
+
+                        for (Triple triple : getSenseRelations(sense, lemma, pos, lexiconName)) {
+                            if (counts.containsKey(triple.getRelation().toString())) {
+                                count = counts.get(triple.getRelation().toString());
+                                counts.put(triple.getRelation().toString(), count + 1);
+                            }
+                            else {
+                                counts.put(triple.getRelation().toString(), 1);
+                            }
+                        }
+
+                    }
+                }
+                writer.println(pos + ":");
+                for (Entry<String, Integer> entry : counts.entrySet()) {
+                    writer.println(entry.getKey() + "\t" + entry.getValue());
+                }
+            }
+
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+    private List<Triple> getSenseRelations(Sense sense, String lemma, EPartOfSpeech pos,
+            String lexiconName)
+    {
+        List<Triple> srList = new ArrayList<Triple>();
+        for (SenseRelation senseRelation : sense.getSenseRelations()) {
+            if (senseRelation.getSource() == null || senseRelation.getSource().getId() == null
+                    || senseRelation.getTarget() == null
+                    || senseRelation.getTarget().getId() == null) {
+                continue;
+            }
+
+            Entity leftHandSide = new Entity(senseRelation.getSource().getId(), EntityTypes.SENSE,
+                    lemma, pos, lexiconName);
+            String targetLemma = null;
+            // Be careful about this POS
+            if (senseRelation.getTarget().getSenses().size() > 0) {
+                targetLemma = senseRelation.getTarget().getSenses().get(0).getLexicalEntry()
+                        .getLemmaForm();
+
+            }
+
+            Entity rightHandSide = new Entity(senseRelation.getTarget().getId(), EntityTypes.SENSE,
+                    targetLemma, pos, lexiconName);
+
+            Relation relation = new Relation(senseRelation.getRelType().name(),
+                    senseRelation.getRelName());
+
+            Triple temp = new Triple(leftHandSide, rightHandSide, relation);
+
+            // System.out.println(temp);
+            // log.info(temp);
+            srList.add(temp);
+
+        }
+        return srList;
+    }
+
+    private void testFrameNet()
+    {
+        String lexiconName = "FrameNet";
+        Lexicon lex;
+        try {
+            lex = uby.getLexiconByName(lexiconName);
+            for (EPartOfSpeech pos : POSList) {
+
+                Iterator<LexicalEntry> lexicalEntryIterator = uby.getLexicalEntryIterator(pos, lex);
+
+                while (lexicalEntryIterator.hasNext()) {
+                    LexicalEntry lexicalEntry = lexicalEntryIterator.next();
+                    // System.out.println(lexicalEntry.getSenses().size());
+                    System.out.println("\n\n***********************");
+                    System.out.println("\n\n" + lexicalEntry.getLemmaForm() + "\t" + pos);
+                    for (Sense sense : lexicalEntry.getSenses()) {
+                        // System.out.println(sense.getSenseRelations().size());
+                        // System.out.println(sense.getContexts().size());
+                        System.out.println("PrRep size "
+                                + sense.getPredicativeRepresentations().size());
+                        System.out.println("Pred: ");
+
+                        for (PredicateRelation prdRelation : sense.getPredicativeRepresentations()
+                                .get(0).getPredicate().getPredicateRelations()) {
+
+
+                            System.out.println("Pred Relation:\t "
+                                    + sense.getPredicativeRepresentations().get(0).getPredicate()
+                                    + "\t" + prdRelation.getRelName() + ":"
+                                    + prdRelation.getRelType() + "\t\t" + prdRelation.getTarget());
+                            Sense targetSense = null;
+                            SemanticPredicate targetPredicate = prdRelation.getTarget();
+                            Iterator<Sense> senseIterator = uby.getSenseIterator(lex);
+                            while (senseIterator.hasNext() ) {
+                                Sense candidateTargetSense = senseIterator.next();
+                                SemanticPredicate candidateTargetPredicate = candidateTargetSense
+                                        .getPredicativeRepresentations().get(0).getPredicate();
+                                if (targetPredicate.equals(candidateTargetPredicate)) {
+                                    // System.out.println("targetSense: "+ candidateTargetSense);
+                                    targetSense = candidateTargetSense;
+                                    System.out.println("FN Sense Relation:\t " + sense + "\t"
+                                            + prdRelation.getRelName() + ":"
+                                            + prdRelation.getRelType() + "\t" + targetSense
+                                            + "\n\n");
+
+                                    break;
+                                }
+                            }
+                            if (targetSense == null) {
+                                System.out
+                                        .println("There is something wrong / either target sense"
+                                                + " is in another POS or doesn't exist in this lexicon\n\n");
+                            }
+
+                            // System.out.println("Get Relevant Semantic Predicate: "
+                            // + prdRelation.getRelevantSemanticPredicate());
+                        }
+
+                        // for (SemanticArgument semArg :
+                        // sense.getPredicativeRepresentations().get(0)
+                        // .getPredicate().getSemanticArguments()) {
+                        //
+                        // System.out.println("\n Pred Sem Arg " + semArg + "  \nrole:   "
+                        // + semArg.getSemanticRole());
+                        // }
+
+                    }
+
+                }
+
+            }
+        }
+        catch (UbyInvalidArgumentException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param args
+     * @throws UbyInvalidArgumentException
+     */
+    public static void main(String[] args)
+        throws UbyInvalidArgumentException
+    {
+        DBConfig db = new DBConfig("localhost/uby_academic", "com.mysql.jdbc.Driver", "mysql",
+                "root", "ehsanukp", false);
+        SenseRelationExtraction relExtractor = new SenseRelationExtraction(db);
+        // relExtractor.testFrameNet();
+        relExtractor.testFrameNet();
+
+        /*
+         * PrintWriter writer = null; try { writer = new PrintWriter("./WN_Sense_feat.output");
+         * relExtractor.dumpRelations(writer); } catch (FileNotFoundException e) { // TODO
+         * e.printStackTrace(); } finally { writer.close(); }
+         */
+
+    }
+}

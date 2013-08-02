@@ -1,0 +1,123 @@
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import de.tudarmstadt.ukp.lmf.api.Uby;
+import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.core.Lexicon;
+import de.tudarmstadt.ukp.lmf.model.core.Sense;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxis;
+import de.tudarmstadt.ukp.lmf.model.multilingual.SenseAxisRelation;
+import de.tudarmstadt.ukp.lmf.model.semantics.SenseRelation;
+import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
+import de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation;
+import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+
+public class Playground
+{
+    private static List<String> generateSenseRelations(Sense sense)
+    {
+
+        List<String> srList = new ArrayList<String>();
+        for (SenseRelation senseRelation : sense.getSenseRelations()) {
+            String relID = senseRelation.getRelType() + ":" + senseRelation.getRelName();
+            String sourceID = senseRelation.getSource().getId();
+            String targetID = senseRelation.getTarget().getId();
+            srList.add(sourceID + "\t" + relID + "\t" + targetID);
+
+        }
+
+        return srList;
+
+    }
+
+    private static List<String> generateSynsetRelations(Synset synset)
+    {
+        List<String> srList = new ArrayList<String>();
+        for (SynsetRelation synsetRelation : synset.getSynsetRelations()) {
+            String relID = synsetRelation.getRelType() + ":" + synsetRelation.getRelName();
+            String sourceID = synsetRelation.getSource().getId();
+            String targetID = synsetRelation.getTarget().getId();
+            srList.add(sourceID + "\t" + relID + "\t" + targetID);
+
+        }
+        return srList;
+    }
+
+    /**
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args)
+        throws Exception
+    {
+        DBConfig db = new DBConfig("localhost/uby_test", "com.mysql.jdbc.Driver", "mysql", "root",
+                "ehsanukp", true, false);
+        Uby uby = new Uby(db);
+        System.out.println(uby.getLexiconNames());
+        for (String lexiconName : uby.getLexiconNames()) {
+            lexiconName = "WordNet";
+            Lexicon lex = uby.getLexiconByName(lexiconName);
+            System.out.println(lex.getName());
+            Iterator<Synset> synsetIterator = uby.getSynsetIterator(lex);
+            while (synsetIterator.hasNext()) {
+                Synset synset = synsetIterator.next();
+
+                System.out.println(synset + ": ");
+
+                System.out.println("\t\t\t" + "Synset Relations:\n");
+                for (String string : generateSynsetRelations(synset)) {
+                    System.out.println("\t\t\t" + string);
+
+                }
+                System.out.println();
+                System.out.println("\t\t\t" + "Sense Relations:\n");
+                for (Sense sense : synset.getSenses()) {
+                    for (String string : generateSenseRelations(sense)) {
+                        System.out.println("\t\t\t" + string);
+
+                    }
+                    for (SenseAxis senseAxis : uby.getSenseAxisBySense(sense)) {
+                        Sense senseOne = senseAxis.getSenseOne();
+                        Sense senseTwo = senseAxis.getSenseTwo();
+
+                        System.out.println("Sense Axis \t\t\t" + senseOne.getId() + "\t"
+                                + senseAxis.getSenseAxisType() + "\t" + senseTwo.getId());
+
+                        Synset synsetOne = senseAxis.getSynsetOne();
+                        Synset synsetTwo = senseAxis.getSynsetTwo();
+                        if (synsetOne == null || synsetTwo == null) {
+                            // System.out.println(synsetOne);
+                            // System.out.println(synsetTwo);
+                        }
+                        else {
+                            System.out.println("\t\t\t" + synsetOne.getId() + "\t"
+                                    + senseAxis.getSenseAxisType() + "\t" + synsetTwo.getId());
+                        }
+                        for (SenseAxisRelation saRelation : senseAxis.getSenseAxisRelations()) {
+                            System.out.println("Sense Axis Relation \t\t\t" + senseAxis.getId()
+                                    + "\t" + saRelation.getRelType() + ":"
+                                    + saRelation.getRelName() + "\t"
+                                    + saRelation.getTarget().getId());
+                        }
+
+                    }
+                }
+
+                System.out.println("\n\n");
+            }
+
+        }
+
+        Lexicon lex = uby.getLexiconByName("WiktionaryEN");
+        List<LexicalEntry> entries = uby.getLexicalEntries("sleep", EPartOfSpeech.verb, lex);
+        for (LexicalEntry le : entries) {
+            for (Sense s : le.getSenses()) {
+                System.out.println("Sense: " + s.getDefinitionText());
+            }
+        }
+    }
+}

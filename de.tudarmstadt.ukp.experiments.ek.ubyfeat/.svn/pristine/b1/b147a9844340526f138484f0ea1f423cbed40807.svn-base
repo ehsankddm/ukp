@@ -1,0 +1,192 @@
+/**
+ *
+ */
+package de.tudarmstadt.ukp.experiments.ek.de.tudarmstadt.ukp.experiments.ek.ubyfeat.extraction;
+
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
+
+/**
+ * @author khoddam
+ *
+ */
+public class Entity
+{
+
+    /**
+     * @param args
+     */
+
+    private String id;
+    private EntityTypes type;
+    private EPartOfSpeech pos;
+    private String sourceLexicon;
+
+
+    public Entity(String id, EntityTypes type, EPartOfSpeech pos, String sourceLexicon)
+    {
+        super();
+        this.id = id;
+        this.type = type;
+        this.pos = pos;
+        this.sourceLexicon = sourceLexicon;
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+        result = prime * result + ((sourceLexicon == null) ? 0 : sourceLexicon.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+
+    /**
+     * @return the id
+     */
+    public String getId()
+    {
+        return id;
+    }
+
+
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id)
+    {
+        this.id = id;
+    }
+
+
+
+    /**
+     * @return the type
+     */
+    public EntityTypes getType()
+    {
+        return type;
+    }
+
+
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(EntityTypes type)
+    {
+        this.type = type;
+    }
+
+
+
+    /**
+     * @return the pos
+     */
+    public EPartOfSpeech getPos()
+    {
+        return pos;
+    }
+
+
+
+    /**
+     * @param pos the pos to set
+     */
+    public void setPos(EPartOfSpeech pos)
+    {
+        this.pos = pos;
+    }
+
+
+
+    /**
+     * @return the source
+     */
+    public String getSourceLexicon()
+    {
+        return sourceLexicon;
+    }
+
+
+
+    /**
+     * @param source the source to set
+     */
+    public void setSourceLexicon(String sourceLexicon)
+    {
+        this.sourceLexicon = sourceLexicon;
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Entity)) {
+            return false;
+        }
+        Entity other = (Entity) obj;
+        if (id == null) {
+            if (other.id != null) {
+                return false;
+            }
+        }
+        else if (!id.equals(other.id)) {
+            return false;
+        }
+        if (pos != other.pos) {
+            return false;
+        }
+        if (sourceLexicon == null) {
+            if (other.sourceLexicon != null) {
+                return false;
+            }
+        }
+        else if (!sourceLexicon.equals(other.sourceLexicon)) {
+            return false;
+        }
+        if (type != other.type) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+//        sourceLexicon+"_"+type+":"+id+"_"+pos;
+        return id+"_"+pos;
+    }
+
+
+
+    public static void main(String[] args)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+}

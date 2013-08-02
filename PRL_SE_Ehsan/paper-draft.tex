@@ -1,0 +1,324 @@
+%% This is file `elsarticle-template-1-num.tex',
+%%
+%% Copyright 2009 Elsevier Ltd
+%%
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%%
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%%
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%%
+%% $Id: elsarticle-template-1-num.tex 149 2009-10-08 05:01:15Z rishi $
+%% $URL: http://lenova.river-valley.com/svn/elsbst/trunk/elsarticle-template-1-num.tex $
+%%
+\documentclass[preprint,12pt]{elsarticle}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+
+%% if you use PostScript figures in your article
+%% use the graphics package for simple commands
+%% \usepackage{graphics}
+%% or use the graphicx package for more complicated commands
+%% \usepackage{graphicx}
+%% or use the epsfig package if you prefer to use the old commands
+%% \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers after \end{frontmatter}.
+%% \usepackage{lineno}
+
+%% natbib.sty is loaded by default. However, natbib options can be
+%% provided with \biboptions{...} command. Following options are
+%% valid:
+
+%%   round  -  round parentheses are used (default)
+%%   square -  square brackets are used   [option]
+%%   curly  -  curly braces are used      {option}
+%%   angle  -  angle brackets are used    <option>
+%%   semicolon  -  multiple citations separated by semi-colon
+%%   colon  - same as semicolon, an earlier confusion
+%%   comma  -  separated by comma
+%%   numbers-  selects numerical citations
+%%   super  -  numerical citations as superscripts
+%%   sort   -  sorts multiple citations according to order in ref. list
+%%   sort&compress   -  like sort, but also compresses numerical citations
+%%   compress - compresses without sorting
+%%
+%% \biboptions{comma,round}
+
+% \biboptions{}
+
+
+\journal{Nuclear Physics B}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for the associated footnote;
+%% use the fnref command within \author or \address for footnotes;
+%% use the fntext command for the associated footnote;
+%% use the corref command within \author for corresponding author footnotes;
+%% use the cortext command for the associated footnote;
+%% use the ead command for the email address,
+%% and the form \ead[url] for the home page:
+%%
+%% \title{Title\tnoteref{label1}}sudo iptables -t nat -A OUTPUT -p tcp --dport 1935 -j REDIRECT
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+%% \ead{email address}
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \address{Address\fnref{label3}}
+%% \fntext[label3]{}
+
+\title{}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{<author name>}
+%% \address[label1]{<address>}
+%% \address[label2]{<address>}
+
+\author{}
+
+\address{}
+
+\begin{abstract}
+%% Text of abstract
+
+\end{abstract}
+
+\begin{keyword}
+%% keywords here, in the form: keyword \sep keyword
+
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+
+\end{keyword}
+
+\end{frontmatter}
+
+%%
+%% Start line numbering here if you want
+%%
+% \linenumbers
+
+\section{Outline}
+
+\begin{itemize}
+	\item Intro
+	\begin{itemize}
+		\item word embedding ...
+		\item history, general approaches
+		\item weakness of previous approach
+		\begin{itemize}
+			\item unsupervised approaches
+			\item lexical resource based approaches (Bordes)		
+		\end{itemize}
+		\item explain why we want to use lexical resource (advantages of using lexical resources)
+		\item explain availability of datasets
+		\item explain possible applications (combining word embedding)
+	\end{itemize}
+	\item Related work
+		\begin{itemize}
+			\item word embedding
+			\item Lexical resources
+		\end{itemize}
+	\item word embedding approach
+	\begin{itemize}
+		\item Bordes word embedding (AAAI 2011)
+		\item Uby
+		\begin{itemize}
+			\item combining different resources
+			\item statistics
+			\item easy access (API)
+		\end{itemize}
+		\item 
+	\end{itemize}
+	\item application in NLP tasks (SENNA extension)
+	\item experiment & discussion
+		\begin{itemize}
+		\item experimental setting
+		\item Evaluation measure
+		\item evaluation result
+		\item interpretation (improvement, limitation, ...)
+		\end{itemize}
+	\item conclusion
+\end{itemize}
+
+
+
+%% main text
+\section{Related Work}
+\label{sec:rel-work}
+In this chapter, we will define and justify the task of
+\emph{Representation Learning} and we will see different families of methods for
+inducing word representation and its application in NLP.
+In machine learning specially in industry, most of the labor is dedicated to
+\emph{Feature Engineering}. Extracting informative features is the crucial part
+of most supervised methods and it is done mostly manually. While many different
+applications share common learning models and classifiers, the difference in
+performance of competing methods mostly goes to the data representation and
+hand-crafted features that they use. This observation reveals an important
+weakness in current models, namely their inability to extract and organize
+discriminative features from data. Representation learning is an umberella term
+for a family of unsupervised methods to learn features from data. Most of recent
+works on the application of this idea in NLP focus on inducing word
+representations. \emph{Word representation} is a mathematical object, usually a
+vector, which each dimension in this vector represents a grammatical or
+semantical feature to identify this word and is induced automatically from data
+\cite{Turian2010b}. Recently, it has been shown in \cite{Turian2010b} and \cite{Collobert2011} that using
+ induced feautres can be helpful to improve state-of-the-art methods in 
+different NLP tasks. In section ~\ref{sec:contr} we will describe one
+possible way of incorporating this idea in to our task. In the next two sections, two major
+families of representations will be shortly reviewed.
+
+
+%\section{Representation Learning}
+%\label{sec:repr-learning}
+
+
+
+\subsection{Distributional Representation}
+\label{subsec:distl-repr}
+In distributional semantics, the meaning of a word is expressed by the context
+that it appears in it \cite{Harris1981}. Features that are used to represent the
+meaning of a word are other words in its neighborhood as it is so called the
+context. In some approaches like LDA and latent semantic analysis (LSA), 
+the context is defined in the scope of a document rather than a window around a
+word. To represent word meanings in via distributional approach, one should
+start from count matrix (or zero-one co-occurence matrix) which each row
+represents a word and each column is a context. The representation can be
+limited to raw usage of the very same matrix or some transforms like
+\emph{tf-idf} will be applied first. A further analysis over this matrix to
+extract more meaningful features is applying dimensionality reduction methods or
+clustering models to induce latent distributional representations. A similar
+clustering method to k-means is used in \cite{Lin2009} to represent phrase and
+word meanings and brown clustering algorithm \cite{Brown1992} has been shown to
+have impact on near to state-of-the-art NLP tasks \cite{Turian2010b}. 
+
+
+\subsection{Distributed Representation}
+\label{subsec:disted-repr}
+Distributed representation has been introduced in the literature for the first
+time in \cite{Bengio2003} where Bengio et al. introduced a first language
+model based on deep learning methods\cite{Bengio2009b}. Deep learning is
+learning through several layers of neural networks which each layer is
+responsible to learn a different concept and each concecpt is built over other
+more abstract concepts. In the deep learning society, any word representation
+that is induced with a neural network is called \emph{Word Embedding}. 
+In contrast to raw count matrix in distributional representations, word embeddings are low-dimensional, dense and real-valued vectors.
+ The term, \textbf{`Distributed'}, in this context refers to the fact that
+ exponential number of objects (clusters) can be modeled by word embeddings.
+ Here we will see two famous models to induce for such representations. One
+ family will use n-grams to learn word representation jointly with a language
+ model and the other family learns the embedding from structured resources.
+
+\subsection{Neural Language Models}
+\label{subsec:lang-model}
+
+In \cite{Collobert2008a}, Weston and Collobert use a non-probabilistic and
+discriminative model to jointly learn word embeddings and a language model that
+can separate plausible n-grams from noisy ones. For each word in a n-gram, they
+combine the word embeddings and use it as positive example. They put noise in
+the n-gram to make negative examples and then train a neural network to learn to
+classify postive labels from negative ones. The parameters of neural network
+(neural language model) and word embedding values will be learned jointly by an
+optimization method called \emph{Stochastic Gradient Descent} \cite{Bottou2010}.
+
+A hierarchical dsitributed language model (HLBL) proposed by Mnih and
+Hinton in \cite{Mnih2009} is another influential work on word embeddings. In
+this model a probabilistic linear neural network(LBL) will be trained to 
+combine word embeddings in first $n-1$ words of a n-gram to predict the $n_th$ word.
+
+Weston-Collobert model and HLBL by Mnih and Hinton are evaluated in
+\cite{Turian2010b} in two NLP tasks: chunking and named entity recognition. With
+using word embeddings from these models combined with hand-crafted features, the
+performance of both tasks are shown to be improved.
+
+\subsection{Representation Learning from Knowledge Bases}
+\label{subsec:structured-embedding}
+
+Bordes et al. in \cite{Bordes2011} and \cite{Bordes2012} have attempted to use
+deep learning to induce word representations from lexical resources such as
+WordNet and knowledge bases (KB) like Freebase. In Freebase for example, each named entity is related
+to another entity by an instance of a specific type of relation. In
+\cite{Bordes2011}, each entity is represented as a vector and each relation is decomposed to two
+matrices. Each of these matrices transform left and right-hand-side entities
+to a semantic space. Similarity of transformed entities indicates that the
+relation holds between the entities.  A prediction task is defined to evaluate
+the embeddings. Given a relation and one of the entities, the task is to predict
+the missing entity. The high accuracy (99.2\%) of the model on prediciton
+of training data shows that learnt representation highly captures attributes of
+the entities and relations in Freebase.
+%% The Appendices part is started with the command \appendix;
+%% appendix sections are then done as normal sections
+%% \appendix
+
+%% \section{}
+%% \label{}
+
+%% References
+%%
+%% Following citation commands can be used in the body text:
+%% Usage of \cite is as follows:
+%%   \cite{key}          ==>>  [#]
+%%   \cite[chap. 2]{key} ==>>  [#, chap. 2]
+%%   \citet{key}         ==>>  Author [#]
+
+%% References with bibTeX database:
+
+\bibliographystyle{model1-num-names}
+\bibliography{mendely.bib}
+
+%% Authors are advised to submit their bibtex database files. They are
+%% requested to list a bibtex style file in the manuscript if they do
+%% not want to use model1-num-names.bst.
+
+%% References without bibTeX database:
+
+% \begin{thebibliography}{00}
+
+%% \bibitem must have the following form:
+%%   \bibitem{key}...
+%%
+
+% \bibitem{}
+
+% \end{thebibliography}
+
+
+\end{document}
+
+%%
+%% End of file `elsarticle-template-1-num.tex'.
