@@ -45,6 +45,7 @@
 
 %% The amssymb package provides various useful mathematical symbols
 \usepackage{amssymb}
+\usepackage{booktabs}
 %% The amsthm package provides extended theorem environments
 %% \usepackage{amsthm}
 
@@ -75,7 +76,7 @@
 % \biboptions{}
 
 
-\journal{Nuclear Physics B}
+\journal{Pattern Recognition Letters}
 
 \begin{document}
 
@@ -102,7 +103,7 @@
 %% \address{Address\fnref{label3}}
 %% \fntext[label3]{}
 
-\title{}
+\title{Learning Word Representations from \\a Large-Scale Unified Lexical Semantic Resource}
 
 %% use optional labels to link authors explicitly to addresses:
 %% \author[label1,label2]{<author name>}
@@ -133,65 +134,16 @@
 %%
 % \linenumbers
 
-\section{Outline}
-
-\begin{itemize}
-	\item Intro
-	\begin{itemize}
-		\item word embedding ...
-		\item history, general approaches
-		\item weakness of previous approach
-		\begin{itemize}
-			\item unsupervised approaches
-			\item lexical resource based approaches (Bordes)		
-		\end{itemize}
-		\item explain why we want to use lexical resource (advantages of using lexical resources)
-		\item explain availability of datasets
-		\item explain possible applications (combining word embedding)
-	\end{itemize}
-	\item Related work
-		\begin{itemize}
-			\item word embedding
-			\item Lexical resources
-		\end{itemize}
-	\item word embedding approach
-	\begin{itemize}
-		\item Bordes word embedding (AAAI 2011)
-		\item Uby
-		\begin{itemize}
-			\item combining different resources
-			\item statistics
-			\item easy access (API)
-		\end{itemize}
-		\item 
-	\end{itemize}
-	\item application in NLP tasks (SENNA extension)
-	\item experiment & discussion
-		\begin{itemize}
-		\item experimental setting
-		\item Evaluation measure
-		\item evaluation result
-		\item interpretation (improvement, limitation, ...)
-		\end{itemize}
-	\item conclusion
-\end{itemize}
-
-
-
-%% main text
-\section{Related Work}
-\label{sec:rel-work}
-In this chapter, we will define and justify the task of
-\emph{Representation Learning} and we will see different families of methods for
-inducing word representation and its application in NLP.
-In machine learning specially in industry, most of the labor is dedicated to
-\emph{Feature Engineering}. Extracting informative features is the crucial part
+\section{Introdcution}
+\label{sec:intro}
+In a large number of machine learning methods and its application to natural language processing,
+ most of the labor is dedicated to \emph{Feature Engineering}. Extracting informative features is the crucial part
 of most supervised methods and it is done mostly manually. While many different
 applications share common learning models and classifiers, the difference in
 performance of competing methods mostly goes to the data representation and
 hand-crafted features that they use. This observation reveals an important
 weakness in current models, namely their inability to extract and organize
-discriminative features from data. Representation learning is an umberella term
+discriminative features from data. \emph{Representation learning} is an umberella term
 for a family of unsupervised methods to learn features from data. Most of recent
 works on the application of this idea in NLP focus on inducing word
 representations. \emph{Word representation} is a mathematical object, usually a
@@ -199,15 +151,24 @@ vector, which each dimension in this vector represents a grammatical or
 semantical feature to identify this word and is induced automatically from data
 \cite{Turian2010b}. Recently, it has been shown in \cite{Turian2010b} and \cite{Collobert2011} that using
  induced feautres can be helpful to improve state-of-the-art methods in 
-different NLP tasks. In section ~\ref{sec:contr} we will describe one
-possible way of incorporating this idea in to our task. In the next two sections, two major
-families of representations will be shortly reviewed.
+variouse NLP tasks. In Section \ref{sec:rel-work}, some of these methods are discussed in more details.
+We can see that most of the current methods for inducing word representations can only exploit from surface relation among words. 
+Indeed, the only resource for them to capture semanitcal and grammatical aspects of words is co-occuring of them in a text.
+The word embeddings learned in neural language models (\cite{} and \cite{}) and brown clustering are 
+examples of such approach.
+In the contrast to these methods, Bordes et al. \cite{Bordes2011} proposed a method to 
+learn distributed representations from relational datasets with richer information.
+ In their work, they are  attempting to induce  word embeddings from knowledge bases such as WordNet and Freebase.
+ Their datasets include binary relations between left entity and right entity and each relation is instantiated from 
+ a different relation type. Since we are following their work, a detailed description of their work is presented
+ in ~\ref{rel-work:structured-embedding}. 
+ 
 
+     
 
-%\section{Representation Learning}
-%\label{sec:repr-learning}
-
-
+%% main text
+\section{Related Work}
+\label{sec:rel-work}
 
 \subsection{Distributional Representation}
 \label{subsec:distl-repr}
@@ -229,7 +190,7 @@ have impact on near to state-of-the-art NLP tasks \cite{Turian2010b}.
 
 
 \subsection{Distributed Representation}
-\label{subsec:disted-repr}
+\label{rel-work:disted-repr}
 Distributed representation has been introduced in the literature for the first
 time in \cite{Bengio2003} where Bengio et al. introduced a first language
 model based on deep learning methods\cite{Bengio2009b}. Deep learning is
@@ -243,9 +204,10 @@ In contrast to raw count matrix in distributional representations, word embeddin
  Here we will see two famous models to induce for such representations. One
  family will use n-grams to learn word representation jointly with a language
  model and the other family learns the embedding from structured resources.
+(Cross-lingual Word Clusters for Direct Transfer of Linguistic Structure should be mentioned ???)
 
 \subsection{Neural Language Models}
-\label{subsec:lang-model}
+\label{rel-work:lang-model}
 
 In \cite{Collobert2008a}, Weston and Collobert use a non-probabilistic and
 discriminative model to jointly learn word embeddings and a language model that
@@ -267,7 +229,7 @@ using word embeddings from these models combined with hand-crafted features, the
 performance of both tasks are shown to be improved.
 
 \subsection{Representation Learning from Knowledge Bases}
-\label{subsec:structured-embedding}
+\label{rel-work:structured-embedding}
 
 Bordes et al. in \cite{Bordes2011} and \cite{Bordes2012} have attempted to use
 deep learning to induce word representations from lexical resources such as
@@ -281,6 +243,121 @@ the embeddings. Given a relation and one of the entities, the task is to predict
 the missing entity. The high accuracy (99.2\%) of the model on prediciton
 of training data shows that learnt representation highly captures attributes of
 the entities and relations in Freebase.
+
+\section {Our contribution}
+\label{sec:contr}
+
+\subsection{Bilingual word embeddings}
+\label{contr:bilingual}
+
+\subsection{Combining semantic resources}
+\label{contr:combine}
+
+\subsection{Uby}
+\label{contr:uby}
+
+\section{Empirical Evaluation}
+\label{sec:exp}
+To show the effectiveness of joint learning of features from multiple knowledge bases we suggest 
+two experiment setups. In the first schema we follow Bordes et al. ranking task. The goal of this task is
+to show how good the structure of knowledge bases are represented through the learned features. 
+After we learned the word embeddings from subset(??) of Uby(??),
+ their ability to reproduce the structure of it will be assessed. On the other hand, the second
+  setup is investigating on this question that if the word embeddings are able to improve the performance of (??)
+   some standard NLP tasks or not. In this setup we will look to contribution of the learned features in \ldots and \ldots
+    (??) in different settings.
+    \subsection{Ranking}
+    \label{exp:rank}
+     Bordes et al. define a ranking task where for each triplet $(e_{l} , r, e_{r} ) $ in trianing and test set,
+     $e_{l}$ will be removed and all the entities will be ranked by 
+     using 1-norm rank function  ( equation ??? decomposing equation). A higher rank of $e_{l}$ (lower number)
+     reflects the better quality of learned representations. Additionally they have compared this result to
+     another ranking schema using density estimation . 
+     In this schema, for each word embedding $e$ the density of $(e , r, e_{r} )$ will be computed
+     ( as it is described in our section???) and triplets will be sorted by their estimated probability 
+     (probability terms ??). Since we are using larger sets of triplets, instead of ranking
+     all the training instances
+     we sample randomly from each training dataset with size of 20\% of the original dataset(??) then
+     we test our models on these sampled training instances and all the instances from test set. Bordes et al. have followed
+     a similar  approach for ranking their embeddings on their biggest dataset. We re-run  their related experiments to make 
+     the comparison to our embeddings meaningful. Table (??) shows the results.
+
+
+\begin{table}[ht]
+\caption{Ranking Performance } % title name of the table
+\centering % centering table
+\begin{tabular}{l c c c c} % creating 10 columns
+\hline\hline % inserting double-line
+ Dataset & num of relations &  & rank $e_l$ & rank $e_r$
+\\ [0.5ex] 
+\hline % inserts single-line
+
+ & & training & 1 & 1 \\[-1ex]
+\raisebox{1.5ex}{WordNet} & \raisebox{1.5ex}{5}&testing
+&  1 & 1 \\[1ex]
+
+& &training & 1 & 1 \\[-1ex]
+\raisebox{1.5ex}{GermaNet} & \raisebox{1.5ex}{5}& testing
+& 1 & 1 \\[1ex]
+
+& &training &  1 & 1 \\[-1ex]
+\raisebox{1.5ex}{WordNet-GermaNet} & \raisebox{1.5ex}{5}& testing
+& 1 & 1 \\[1ex]
+
+& &training &  1 & 1 \\[-1ex]
+\raisebox{1.5ex}{WordNet-FrameNet} & \raisebox{1.5ex}{5}& testing
+& 1 & 1 \\[1ex]
+% [1ex] adds vertical space
+\hline % inserts single-line
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+
+     
+     We run another experiment  to further analyze the role of multi-task learning of embeddings for transforming knowledge
+     from a language to another one. We repeat the ranking evaluation with two different embeddings: 
+     (1) learned from GermaNet (2) jointly learned from GermaNet-WordNet. This time we test it on 
+     a same test set which contains only tripletes extracted from GermaNet because we are interested to examine
+     if semantic information from English (WordNet) can be transfered to German (GermaNet). Table (??) presents
+     the comparison of ranking tasks for mono-lingual and bilingual word embeddings.
+     \begin{table}[ht]
+\caption{Bilingual transfer learning } % title name of the table
+\centering % centering table
+\begin{tabular}{l c c c c} % creating 10 columns
+\hline\hline % inserting double-line
+ Dataset & num of relations &  & rank $e_l$ & rank $e_r$
+\\ [0.5ex] 
+\hline % inserts single-line
+
+
+& &training & 1 & 1 \\[-1ex]
+\raisebox{1.5ex}{GermaNet} & \raisebox{1.5ex}{5}& testing
+& 1 & 1 \\[1ex]
+
+& &training &  1 & 1 \\[-1ex]
+\raisebox{1.5ex}{WordNet-GermaNet} & \raisebox{1.5ex}{5}& testing
+& 1 & 1 \\[1ex]
+
+% [1ex] adds vertical space
+\hline % inserts single-line
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+     
+     Discussion about results should come here. We can not write it until we have all the results.
+     
+     
+ \subsection{Some application we should think of}
+ \label{exp:appl}
+          
+          
+          
+          
+            
+         
+           
+\section{Conclusion and Future Work}
+\label{sec:conc}
 %% The Appendices part is started with the command \appendix;
 %% appendix sections are then done as normal sections
 %% \appendix
